@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" xmlns:component="lib.component.*" xmlns:context="modules.context.*" xmlns:utils="lib.utils.*">
+	
+	<fx:Script>
+		<![CDATA[
+			import lib.utils.encryption.Encryption;
+			protected function onLogin(event:MouseEvent):void
+			{
+				inputPassword.errorString = '';
+				context.query('c => c.users.filter(filterBy("userName","'+inputUserName.text+'"))[0]').then(function(res:*):void{
+					if(!res.success){
+						return;
+					}
+					// lets validate password
+					if(Encryption.decryptData(res.result.ts,res.result.password) == inputPassword.text){
+						context.loggedInUser = res.result.userName;
+					}else{
+						inputPassword.errorString = 'Invalid Password';
+					}
+				});
+			}
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<context:AppContext id="context" />
+		<utils:ParentLookup property="context" component="{this}" parentClass="{AppContext}" />
+	</fx:Declarations>
+	<s:Rect width="100%" height="100%">
+		<s:fill>
+			<s:SolidColor color="#FFFFFF" />
+		</s:fill>
+	</s:Rect>
+	<s:Panel verticalCenter="0" horizontalCenter="0" title="Please enter your User Name">
+		<s:VGroup top="10" left="10" right="10" bottom="10">
+			<component:Labeled label="User Name" width="100%">
+				<component:TextInput width="100%" id="inputUserName" />
+			</component:Labeled>
+			<component:Labeled label="Password" width="100%">
+				<component:TextInput width="100%" displayAsPassword="true" id="inputPassword"/>
+			</component:Labeled>
+			<s:HGroup width="100%">
+				<s:Spacer width="100%" />
+				<component:Button label="Sign In" click="onLogin(event)" />
+			</s:HGroup>
+		</s:VGroup>
+	</s:Panel>
+</s:Group>

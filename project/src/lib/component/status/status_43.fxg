@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Graphic xmlns="http://ns.adobe.com/fxg/2008" xmlns:fxg="http://ns.adobe.com/fxg/2008"
+         xmlns:d="http://ns.adobe.com/fxg/2008/dt" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+         xmlns:svg="http://www.w3.org/Graphics/SVG/1.1/DTD/svg11-tiny.dtd" version="2.0" viewWidth="100"
+         viewHeight="100">
+    <mask>
+        <Group>
+            <Rect width="100" height="100">
+                <fill>
+                    <SolidColor color="#ffffff" alpha="1"/>
+                </fill>
+            </Rect>
+        </Group>
+    </mask>
+    <Group>
+        <transform>
+            <Transform>
+                <matrix>
+                    <Matrix a="8.3542189" b="0" c="0" d="8.3542189" tx="0" ty="-0.03"/>
+                </matrix>
+            </Transform>
+        </transform>
+        <Group id="g3903">
+            <Path data="M 11.504 3.652 C 11.195 2.925 10.769 2.291 10.224 1.749 9.679 1.207 9.043 0.78 8.318 0.469 7.595 0.156 6.817 0 5.988 0 5.158 0 4.381 0.156 3.653 0.469 2.927 0.78 2.292 1.207 1.75 1.749 1.208 2.291 0.781 2.926 0.469 3.652 0.157 4.378 0 5.156 0 5.985 c 0 0.829 0.156 1.607 0.469 2.333 0.313 0.728 0.739 1.36 1.281 1.904 0.542 0.541 1.177 0.968 1.903 1.279 0.728 0.313 1.505 0.469 2.335 0.469 0.829 0 1.606 -0.156 2.33 -0.469 0.725 -0.312 1.36 -0.738 1.905 -1.279 0.545 -0.544 0.972 -1.177 1.28 -1.904 0.311 -0.726 0.467 -1.504 0.467 -2.333 0 -0.829 -0.156 -1.606 -0.466 -2.333 z M 5.985 11.11 C 3.155 11.11 0.86 8.815 0.86 5.985 0.86 3.155 3.155 0.86 5.985 0.86 c 2.83 0 5.125 2.295 5.125 5.125 0 2.83 -2.295 5.125 -5.125 5.125 z"
+                  winding="nonZero" id="path3905">
+                <fill>
+                    <SolidColor color="#FF0000" alpha="1"/>
+                </fill>
+            </Path>
+            <Path data="M 8.712 9.346 H 7.557 L 4.477 4.46 V 9.346 H 3.379 V 2.617 H 4.578 L 7.614 7.529 V 2.617 h 1.098 v 6.729 z"
+                  winding="nonZero" id="path3907">
+                <fill>
+                    <SolidColor color="#FF0000" alpha="1"/>
+                </fill>
+            </Path>
+        </Group>
+    </Group>
+</Graphic>

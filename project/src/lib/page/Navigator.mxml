@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:NavigatorContent xmlns:fx="http://ns.adobe.com/mxml/2009"
+					xmlns:s="library://ns.adobe.com/flex/spark"
+					xmlns:mx="library://ns.adobe.com/flex/mx"
+					xmlns:component="lib.component.*"
+					width="100%" height="100%" label="..." xmlns:page="lib.page.*" xmlns:context="modules.context.*" xmlns:dialog="lib.page.dialog.*" xmlns:utils="lib.utils.*">
+	<fx:Script>
+		<![CDATA[
+			import lib.utils.IconsChar;
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<fx:String id="path"/>
+		<fx:Object id="query"/>
+		<fx:Boolean id="deactivateNavigator" />
+		<utils:BindProperty property="deactivateNavigator" component="{this}" value="{dialogContainer.dialogIsActive}" />
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			
+			import mx.binding.utils.BindingUtils;
+			import mx.binding.utils.ChangeWatcher;
+			import mx.collections.ArrayCollection;
+			import mx.collections.ArrayList;
+			import mx.events.ModuleEvent;
+			
+			[Bindable]
+			public var baseModule:*;
+			
+			[Bindable]
+			public var address:String;
+			
+			[Bindable]
+			public var moduleLoaded:Boolean;
+			
+			[Bindable]
+			public var routingHistory:ArrayList = new ArrayList();
+			
+			[Bindable]
+			public var pageContexts:Object = {};
+			
+			[Bindable]
+			public var routingIndex:Number;
+			
+			[Bindable]
+			public var historyForwardAllowed:Boolean;
+			
+			[Bindable]
+			public var historyBackwardAllowed:Boolean;
+			
+			private var _watcher:ChangeWatcher;
+			protected function onModuleReady(event:ModuleEvent):void
+			{
+				onModuleCleaned(null);
+				baseModule = moduleLoader.child;
+				setPropertyToModule(baseModule,'address',address);
+				setPropertyToModule(baseModule,'query',query);
+				if(path in pageContexts){
+					setPropertyToModule(baseModule,'pageContext',pageContexts[path]);
+				}
+				label = 'title' in baseModule ? baseModule.title : '';
+				if(_watcher){
+					_watcher.unwatch();	
+				}
+				_watcher = BindingUtils.bindProperty(this,'label',baseModule,'title');
+				
+				
+				moduleLoaded = true;
+			}
+			
+			protected function onModuleCleaned(event:ModuleEvent):void
+			{
+				baseModule = null;
+				moduleLoaded = false;
+			}
+			
+			public function loadModule(_address:String):void{
+				routingHistory = new ArrayList(routingHistory.source.slice(0,routingIndex + 1));
+				routingHistory.addItem(_address);
+				routingIndex = routingHistory.length - 1;
+				_openModule(_address);
+				historyBackwardAllowed = true;
+				historyForwardAllowed= false;
+			}
+			
+			public function historyBack():void{
+				if(routingIndex>0){
+					var lastPageAddress:String = routingHistory.getItemAt(--routingIndex) as String;
+					_openModule(lastPageAddress);
+					historyForwardAllowed = true;
+				}
+			}
+			
+			public function historyForward():void{
+				if(routingIndex+1<routingHistory.length){
+					var lastPageAddress:String = routingHistory.getItemAt(++routingIndex) as String;
+					_openModule(lastPageAddress);
+					historyForwardAllowed = routingIndex+1<routingHistory.length; 
+				}
+			}
+			
+			private function setPropertyToModule(baseModule:*, param:String, value:*):void
+			{
+				if(param in baseModule){
+					try{
+						baseModule[param] = value;
+					}catch(error:Error){
+						trace('unable to set value ' + param + ' to Module');
+					}
+				}
+			}
+			
+			private function _openModule(_address:String):void
+			{
+				address = _address;
+				query = {};
+				var indexOfQuestionMark:Number = address.indexOf('?');
+				var tmpPath:String = indexOfQuestionMark > 0 ? address.substr(0,indexOfQuestionMark) : address;
+				var queryString:String = indexOfQuestionMark > 0 ? address.substr(indexOfQuestionMark+1,address.length) : '';
+				if(queryString && queryString.length > 0){
+					queryString.split('&').forEach(function(qry:String, index:int, array:Array):void{
+						var qrys:Array = qry.split('=');
+						query[qrys[0]] = qrys[1];
+					});
+				}
+
+				storeCurrentPageContext();
+				path = tmpPath;
+			}
+			
+			public function tabEntered():void{
+				if(baseModule && 'onTabEntered' in baseModule){
+					baseModule.onTabEntered();
+				}
+			}
+			
+			public function tabExited():void{
+				if(baseModule && 'onTabExited' in baseModule){
+					baseModule.onTabExited();
+				}
+			}
+			
+			private function storeCurrentPageContext():void
+			{
+				if(baseModule && 'pageContext' in baseModule){
+					pageContexts[path] = baseModule.pageContext;
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	<context:NavigatorContext id="context" loadModule="loadModule(event.payload)" historyBackward="historyBack()" historyForward="historyForward()" width="100%" height="100%" dialogContainer="{dialogContainer}">
+		<s:ModuleLoader id="moduleLoader" top="0" left="0" right="0" bottom="0" error="onModuleCleaned(event)"
+						ready="onModuleReady(event)" unload="onModuleCleaned(event)"
+						url="modules/{path}/Index.swf">
+		</s:ModuleLoader>
+		<dialog:DialogContainer id="dialogContainer" top="-1" left="0" right="0" bottom="0"/>
+	</context:NavigatorContext>
+</s:NavigatorContent>

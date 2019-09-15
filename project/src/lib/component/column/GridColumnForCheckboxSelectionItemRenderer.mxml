@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:GridItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					xmlns:s="library://ns.adobe.com/flex/spark" 
+					xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			protected function onCheckBoxSelected(event:Event):void
+			{
+				var gridColumn:GridColumnForCheckboxSelection = column as GridColumnForCheckboxSelection;
+				var selectedData:ArrayCollection = gridColumn.selectedData;
+				var itemIsNotSelected:Boolean = selectedData.getItemIndex(data) < 0;
+				var itemIsSelected:Boolean = !itemIsNotSelected;
+				
+				if(checkbox.selected && itemIsNotSelected){
+					selectedData.addItem(data);
+				}
+				if((!checkbox.selected) && itemIsSelected){
+					selectedData.removeItemAt(selectedData.getItemIndex(data));
+				}														
+			}
+			
+			private function itemIsSelected(length:Number,data:Object):Boolean{
+				var gridColumn:GridColumnForCheckboxSelection = column as GridColumnForCheckboxSelection;
+				return gridColumn.selectedData.getItemIndex(data) >= 0;
+			}
+			
+		]]>
+	</fx:Script>
+	<s:CheckBox top="5" id="checkbox" horizontalCenter="0" selected="{itemIsSelected((column as GridColumnForCheckboxSelection).selectedData.length,data)}" change="onCheckBoxSelected(event)" visible="{(column as GridColumnForCheckboxSelection).visibleFunction.apply(this,[data,column]) }" enabled="{(column as GridColumnForCheckboxSelection).enabledFunction.apply(this,[data,column]) }"/>
+</s:GridItemRenderer>

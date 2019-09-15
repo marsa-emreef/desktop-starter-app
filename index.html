@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>EsnaadM</title>
+</head>
+<body style="margin : 0px; padding:0px ;">
+<style>
+
+
+    #minimize, #maximize, #close {
+        font-size: 16pt;
+        transition: all ease-in-out .2s;
+        cursor: default;
+        width: 50px;
+        text-align: center;
+    }
+
+    #minimize:hover, #maximize:hover, #close:hover {
+        background-color: #666666;
+    }
+</style>
+
+<div id="header" style="display: flex;width: 100vw;background-color: #333333;-webkit-app-region: drag;flex-direction: row-reverse;">
+    <div id="close" style="-webkit-app-region: no-drag;color: #F6F6F6">&times;</div>
+    <div id="maximize" style="-webkit-app-region: no-drag;color: #F6F6F6">+</div>
+    <div id="minimize" style="-webkit-app-region: no-drag;color: #F6F6F6">-</div>
+</div>
+
+<webview id="webview" plugins style="width : 100vw;height : calc(100vh - 30px);"></webview>
+
+<script>
+    const win = require('electron').remote.getCurrentWindow();
+    const ipcRenderer = require('electron').ipcRenderer;
+    const serverPort = win.serverPort;
+	const extraResourceDir = win.extraResourceDir;
+    ipcRenderer.on('browser',(event,data)=>{
+        const func = data.func;
+        const param = data.param;
+        window[func].apply(null,param);
+    });
+    
+    function displayHeader(show) {
+        if(show){
+            document.getElementById('header').setAttribute('style','display:flex;width:100vw;background-color: #333333;-webkit-app-region: drag;flex-direction: row-reverse;');
+            document.getElementById('webview').setAttribute('style','width : 100vw;height : calc(100vh - 30px);')
+        }else{
+            document.getElementById('header').setAttribute('style','display:none');
+            document.getElementById('webview').setAttribute('style','width : 100vw; height : 100vh;')
+        }
+    }
+
+    function reload(){
+        window.location.reload();
+    }
+
+    const webview = document.getElementById('webview');
+    webview.setAttribute('src', `${extraResourceDir}/app/esnaadm.swf?port=${serverPort}`);
+
+    document.querySelector('#minimize').addEventListener('click', function () {
+        win.minimize()
+    });
+
+    document.querySelector('#maximize').addEventListener('click', function () {
+        !win.isMaximized() ? win.maximize() : win.unmaximize()
+    });
+
+    document.querySelector('#close').addEventListener('click', function () {
+        if (window.confirm('Are you sure. You want to quit Esnaad-M?')) {
+            win.close();
+        }
+    });
+
+</script>
+</body>
+</html>

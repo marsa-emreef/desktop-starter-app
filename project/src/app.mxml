@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" xmlns:component="lib.component.*" xmlns:modules="modules.*" xmlns:context="modules.context.*" xmlns:page="lib.page.*" xmlns:utils="lib.utils.*" xmlns:setup="lib.page.setup.*" xmlns:model="lib.page.setup.model.*" xmlns:lib="lib.*" 
+			   scriptTimeLimit="500" xmlns:dialog="lib.page.dialog.*" xmlns:notification="lib.page.notification.*" addedToStage="onCreationComplete(event)" xmlns:downloader="lib.page.setup.downloader.*" xmlns:command="lib.page.setup.downloader.command.*" >
+	<fx:Style source="app.css" />
+	
+	<fx:Script>
+		<![CDATA[
+			import flash.utils.getTimer;
+			
+			import lib.component.GlobalFilter;
+			import lib.component.Lookup;
+			import lib.component.Minimizeable;
+			import lib.component.status.StatusImage;
+			import lib.page.dialog.DialogPanel;
+			import lib.page.dialog.DialogPanelBase;
+			import lib.utils.ColorCoding;
+			import lib.utils.Debounce;
+			import lib.utils.IconsChar;
+			import lib.utils.Promise;
+			import lib.utils._;
+			import lib.utils.date.DateUtils;
+			
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import mx.managers.BrowserManager;
+			
+			private var lib_component_Lookup_obj:lib.component.Lookup;
+			private var lib_component_status_StatusImage_obj:lib.component.status.StatusImage;
+			
+			public function confirmationComplete(res:*):void{
+				(res.dialog as DialogPanelBase).closePanel();
+			}
+			
+			protected function onCreationComplete(event:Event):void
+			{
+				Promise.root = this;
+				var port:String = stage.loaderInfo.parameters['port'];
+				if(port){
+					localPort = parseInt(port);	
+				}
+				appCompilationDate = _.getCompilationDate(this.loaderInfo.bytes);
+				context.query('catalog => describe(catalog.users)').then(function(res:*):void{
+					if(res.success && res.result ){
+						setupPage.displayContent = false;
+					}
+					context.ready();
+				});
+			}
+			
+			[Bindable]
+			public var localPort:Number = 3000;
+			
+			private var displayHeader:Function = Debounce.create(_displayHeader,500);
+			
+			private var lib_component_GlobalFilter_obj:lib.component.GlobalFilter;
+			
+			public function _displayHeader():void{
+				if(mouseRollover && !headerSlider.displayContent){
+					headerSlider.displayContent = true;
+					context.local.fetch('browser',{func:'displayHeader',param:[true]}).then(function(res:*):void{});
+				}
+				
+			}
+			
+			public function hideHeader():void{
+				context.local.fetch('browser',{func:'displayHeader',param:[false]}).then(function(res:*):void{
+					headerSlider.displayContent = false;
+				});
+			}
+			
+			protected function onExitAppClicked(event:MouseEvent):void
+			{
+				context.showConfirmation('Are you sure you want to logout ?',DialogPanel.YES|DialogPanel.NO).then(function(res:*):void{
+					res.dialog.closePanel();
+					if(res.selection == DialogPanel.YES){
+						context.restartApp();
+					}
+				});
+			}
+			
+			private var _reloginIsActive:Boolean;
+			
+			protected function onNotificationActiveChange(event:Event):void
+			{
+				mainPanel.filters = notificationContainer.isActive ? blurFilters : [];
+			}
+			
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<utils:Fetch id="local" serverAddress="http://localhost.:{localPort}" />
+		<s:NumberFormatter id="nf" fractionalDigits="1" />
+		<s:NumberFormatter id="nf2" fractionalDigits="0" />
+		<fx:Boolean id="mouseRollover" />
+		<fx:Date id="appCompilationDate" />
+		<component:ComponentHoverColor component="{signOut}" color="{ColorCoding.GREEN}" />
+		<fx:Array id="blurFilters">
+			<s:BlurFilter blurX="8" blurY="8" />
+		</fx:Array>
+	</fx:Declarations>
+	
+	<context:AppContext id="context" 
+						local="{local}" 
+						appCompilationDate="{appCompilationDate}" 
+						width="100%" 
+						height="100%" 
+						notificationContainer="{notificationContainer}">
+		<s:Group width="100%" height="100%" id="mainPanel">
+			<s:VGroup width="100%" height="100%">
+				<s:Group width="100%">
+					<s:Rect top="0" left="0" right="0" bottom="0">
+						<s:fill>
+							<s:SolidColor color="{context.debugger ? ColorCoding.YELLOW_BRIGHT : ColorCoding.WHITE}" />
+						</s:fill>
+					</s:Rect>
+					<s:HGroup top="7" bottom="5" left="10" right="10" verticalAlign="bottom"  rollOver="mouseRollover=true;displayHeader()" rollOut="mouseRollover=false" fontSize="15">
+						<s:HGroup gap="5" fontSize="12" fontWeight="bold" paddingBottom="0">
+							<s:Label text="My App" fontSize="18" fontFamily="Light"/>
+						</s:HGroup>
+						<s:Spacer width="100%" />
+					</s:HGroup>
+					<s:Line width="100%" bottom="0">
+						<s:stroke>
+							<s:SolidColorStroke color="#DDDDDD" weight="1"/>
+						</s:stroke>
+					</s:Line>
+					<s:HGroup bottom="-25" right="10" verticalAlign="bottom">
+						<s:Label text="{IconsChar.exit_to_app}" id="signOut" buttonMode="true" fontSize="18" fontFamily="Icon" click="onExitAppClicked(event)"/>	
+					</s:HGroup>
+				</s:Group>
+				<s:HGroup width="100%" height="100%" gap="0" >
+					<page:Router width="100%" height="100%" />
+					<page:Router width="100%" height="100%" visible="{header.displaySecondPanel}" includeInLayout="{header.displaySecondPanel}"/>
+				</s:HGroup>	
+			</s:VGroup>
+			<component:Slider id="headerSlider" height="100%" width="100%" clickedOutsideContent="{hideHeader()}" displayContent="true">
+				<page:Header width="{headerSlider.width}" id="header" />
+			</component:Slider>
+			<component:Slider id="loginPage" height="100%" width="100%" displayContent="{!context.userIsLoggedIn}">
+				<page:Login width="{loginPage.width}" height="{loginPage.height}" />
+			</component:Slider>
+			<component:Slider id="setupPage" height="100%" width="100%" displayContent="true">
+				<page:SetupApp width="{setupPage.width}" height="{setupPage.height}" close="{setupPage.displayContent = false}"/>
+			</component:Slider>	
+			<s:Label fontFamily="Icon" text="{IconsChar.lock}" alpha="0.3" bottom="10" left="10" fontSize="60" visible="{!context.isLocked}"/>
+		</s:Group>
+		
+		<notification:NotificationContainer id="notificationContainer" width="100%" height="100%" isActiveChange="onNotificationActiveChange(event)"/>
+	</context:AppContext>
+</s:Application>

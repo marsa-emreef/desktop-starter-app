@@ -1,0 +1,236 @@
+@namespace s "library://ns.adobe.com/flex/spark";
+@namespace mx "library://ns.adobe.com/flex/mx";
+@namespace component "lib.component.*";
+@namespace spark "spark.skins.spark.*";
+@namespace skins "lib.component.skins.*";
+
+@font-face {
+	src: url("lib/fonts/MaterialIcons-Regular.ttf");
+	fontFamily: Icon;
+	fontStyle: normal;
+	fontWeight: normal;
+	advancedAntiAliasing: true;
+	embed-as-cff : true;
+}
+
+@font-face {
+	src: url("lib/fonts/OpenSans-Light.ttf");
+	fontFamily: Light;
+	fontStyle: normal;
+	advancedAntiAliasing: true;
+	embed-as-cff : true;
+}
+
+@font-face {
+	src: url("lib/fonts/OpenSans-LightItalic.ttf");
+	fontFamily: Light;
+	fontStyle: italic;
+	fontWeight: normal;
+	advancedAntiAliasing: true;
+	embed-as-cff : true;
+}
+
+@font-face {
+	src: url("lib/fonts/OpenSans-Regular.ttf");
+	fontFamily: OpenSans;
+	fontStyle: normal;
+	fontWeight: normal;
+	advancedAntiAliasing: true;
+	embed-as-cff : true;
+}
+
+@font-face {
+	src: url("lib/fonts/OpenSans-Regular.ttf");
+	fontFamily: OpenSansNoCFF;
+	fontStyle: normal;
+	fontWeight: normal;
+	advancedAntiAliasing: true;
+	embed-as-cff : false;
+}
+
+@font-face {
+	src: url("lib/fonts/OpenSans-Italic.ttf");
+	fontFamily: OpenSans;
+	fontStyle: italic;
+	fontWeight: normal;
+	advancedAntiAliasing: true;
+	embed-as-cff : true;
+}
+
+@font-face {
+	src: url("lib/fonts/OpenSans-SemiBold.ttf");
+	fontFamily: OpenSans;
+	fontStyle: normal;
+	fontWeight: bold;
+	advancedAntiAliasing: true;
+	embed-as-cff : true;
+}
+
+@font-face {
+	src: url("lib/fonts/OpenSans-SemiBoldItalic.ttf");
+	fontFamily: OpenSans;
+	fontStyle: italic;
+	fontWeight: bold;
+	advancedAntiAliasing: true;
+	embed-as-cff : true;
+}
+
+component|Minimizeable{
+	skinClass : ClassReference("lib.component.skins.MinimizeableSkin")
+}
+
+mx|ToolTip{
+	fontFamily: OpenSans;
+}
+
+s|Label {
+	fontFamily: OpenSans;
+}
+
+component|NumberField{
+	skinClass : ClassReference("lib.component.skins.NumberFieldSkin");
+}
+
+s|TextInput{
+	fontFamily : OpenSans;
+	borderColor : #EDEDED;
+	borderVisible : false;
+	contentBackgroundColor : #F6F6F6;
+	cornerRadius : 0;
+	fontSize : 14;
+	paddingLeft : 5;
+	paddingRight : 5;
+	paddingBottom : 4;
+	paddingTop : 6;
+	focusThickness : 1;
+	focusColor : #4CE557;
+	errorSkin : ClassReference("lib.component.skins.ErrorSkin");
+	skinClass : ClassReference("lib.component.skins.TextInputSkin");			
+}
+
+component|TextInput{
+	errorSkin : ClassReference("lib.component.skins.ErrorSkin");
+	skinClass : ClassReference("lib.component.skins.TextInputSkin");
+}
+
+
+s|ComboBox{
+	fontFamily : OpenSans;
+	borderColor : #EDEDED;
+	cornerRadius : 0;
+	fontSize : 14;
+	focusColor : #4CE557;
+	errorSkin : ClassReference("lib.component.skins.ErrorSkin");
+	skinClass : ClassReference("lib.component.skins.ComboBoxSkin");
+	focusSkin : ClassReference("lib.component.skins.FocusSkins")
+}
+
+
+component|Lookup{
+	errorSkin : ClassReference("lib.component.skins.ErrorSkin");
+}
+	
+
+s|CheckBox{
+	fontFamily : OpenSans;
+	borderColor : #EDEDED;
+	dropShadowVisible : false;
+	fontSize : 14;
+	focusThickness : 1;
+	focusColor : #4CE557;
+	skinClass : ClassReference("lib.component.skins.CheckBoxSkin");
+}
+
+
+s|DropDownList {
+	cornerRadius : 0;
+	fontFamily : OpenSans;
+	borderColor : #EDEDED;
+	contentBackgroundColor : #F9F9F9;
+	fontSize : 14;
+	focusColor : #4CE557;
+	skinClass : ClassReference("lib.component.skins.DropDownListSkin");
+	focusSkin : ClassReference("lib.component.skins.FocusSkins");
+	errorSkin : ClassReference("lib.component.skins.ErrorSkin");
+}
+
+
+s|TextArea{
+	fontFamily : OpenSans;
+	fontSize : 14;
+	contentBackgroundColor : #F6F6F6;
+	borderVisible : false;
+	focusThickness : 1;
+	focusColor : #4CE557;
+	errorSkin : ClassReference("lib.component.skins.ErrorSkin");
+}
+
+component|TextArea{
+	fontFamily : OpenSans;
+	fontSize : 14;
+	contentBackgroundColor : #F6F6F6;
+	borderVisible : false;
+	focusThickness : 1;
+	focusColor : #4CE557;
+	errorSkin : ClassReference("lib.component.skins.ErrorSkin");
+	skinClass : ClassReference("lib.component.skins.TextAreaSkin");
+}
+
+s|Button{
+	cornerRadius : 0;
+	color : #333333;
+	fontSize : 14;
+	focusThickness : 1;
+	focusColor : #4CE557;
+	skinClass : ClassReference("lib.component.skins.ButtonSkin");
+}
+
+s|RadioButton{
+	fontSize : 14;
+	focusThickness : 1;
+	focusColor : #4CE557;
+	skinClass : ClassReference("lib.component.skins.RadioButtonSkin");
+}
+
+s|DataGrid{
+	fontSize : 12;
+	fontFamily : OpenSans;
+	rollOverColor : #F6F6F6;
+	selectionColor : #DAE9FF;
+	caretColor : #EEEEEE;
+	borderColor : #DDDDDD;
+	focusColor : #4CE557;
+	skinClass : ClassReference("lib.component.skins.DataGridSkin");
+	focusSkin : ClassReference("lib.component.skins.FocusSkins")
+}
+
+s|TabBar{
+	cornerRadius : 0;
+	focusColor : #4CE557;
+	skinClass : ClassReference("lib.component.skins.TabBarSkin");
+}
+
+s|Panel{
+	dropShadowVisible : false;
+	borderColor : #DDDDDD;
+	focusColor : #4CE557;
+	skinClass : ClassReference("lib.component.skins.PanelSkin");
+}
+
+s|List{
+	borderVisible : false;
+	fontFamily : OpenSans;
+	selectionColor :  #DAE9FF;
+	rollOverColor : #F6F6F6;
+	skinClass : ClassReference("lib.component.skins.ListSkin");
+}
+
+s|VScrollBar{
+	smoothScrolling : true;
+	skinClass  :ClassReference("lib.component.skins.VScrollBarSkin");
+}
+
+s|HScrollBar{
+	smoothScrolling : true;
+	skinClass  :ClassReference("lib.component.skins.HScrollBarSkin")
+}

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Graphic xmlns="http://ns.adobe.com/fxg/2008" xmlns:fxg="http://ns.adobe.com/fxg/2008"
+         xmlns:d="http://ns.adobe.com/fxg/2008/dt" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+         xmlns:svg="http://www.w3.org/Graphics/SVG/1.1/DTD/svg11-tiny.dtd" version="2.0" viewWidth="100"
+         viewHeight="100">
+    <mask>
+        <Group>
+            <Rect width="100" height="100">
+                <fill>
+                    <SolidColor color="#ffffff" alpha="1"/>
+                </fill>
+            </Rect>
+        </Group>
+    </mask>
+    <Group>
+        <transform>
+            <Transform>
+                <matrix>
+                    <Matrix a="9.2627238" b="0" c="0" d="9.2627238" tx="3.41" ty="0"/>
+                </matrix>
+            </Transform>
+        </transform>
+        <Group id="g3957">
+            <Path data="M 9.935 1.352 8.584 0.126 C 8.362 -0.086 8.103 -0.031 7.808 0.293 L 5.299 3.067 5.294 3.062 2.721 5.906 2.726 5.91 0.211 8.687 C 0.09 8.823 0.023 8.964 0.003 9.117 -0.014 9.268 0.026 9.386 0.121 9.476 l 1.343 1.225 c 0.104 0.086 0.231 0.114 0.378 0.082 0.075 -0.018 0.144 -0.046 0.21 -0.086 L 10.026 1.884 C 10.131 1.678 10.104 1.501 9.935 1.352 z"
+                  winding="nonZero" id="path3959">
+                <fill>
+                    <SolidColor color="#FF0000" alpha="1"/>
+                </fill>
+            </Path>
+        </Group>
+    </Group>
+</Graphic>

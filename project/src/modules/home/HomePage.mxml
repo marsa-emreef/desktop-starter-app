@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" xmlns:context="modules.context.*" xmlns:home="modules.home.*" xmlns:utils="lib.utils.*" xmlns:model="lib.page.setup.model.*" xmlns:assets="lib.assets.*">
+	<fx:Script>
+		<![CDATA[
+			import lib.page.Navigator;
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<s:ArrayList id="menu">
+			<fx:Object label="Database" value="config/database" />
+			<fx:Object label="Query" value="config/query" />
+		</s:ArrayList>
+		<context:NavigatorContext id="navigatorContext" />
+		<utils:ParentLookup component="{this}" property="navigatorContext" parentClass="{NavigatorContext}" />
+	</fx:Declarations>
+	<s:Group width="100%" height="100%" clipAndEnableScrolling="true">
+		<s:Group horizontalCenter="{(width/3)}" verticalCenter="0">
+			<s:Group alpha="0.05" id="image" rotationX="10" rotationY="20" rotationZ="10" maintainProjectionCenter="true">
+				<s:filters>
+					<s:DropShadowFilter distance="40" alpha="0.3" />
+				</s:filters>
+				<assets:EsnaadLogo/>
+			</s:Group>
+		</s:Group>	
+	</s:Group>
+	
+	<s:Group verticalCenter="0" horizontalCenter="0">
+		<s:DataGroup  dataProvider="{menu}" top="0" left="0" right="0" bottom="0">
+			<s:layout>
+				<s:TileLayout paddingLeft="10" 
+							  paddingRight="10" 
+							  paddingTop="10" 
+							  paddingBottom="10" 
+							  orientation="rows" 
+							  horizontalGap="20" 
+							  verticalGap="20" columnWidth="150" rowHeight="150" requestedColumnCount="3"/>
+			</s:layout>
+			<s:itemRenderer>
+				<fx:Component>
+					<s:ItemRenderer width="150" height="150" >
+						<fx:Script>
+							<![CDATA[
+								override protected function get hovered():Boolean{
+									return false;
+								}
+							]]>
+						</fx:Script>
+						<s:Group width="100%" height="100%" click="{outerDocument.navigatorContext.loadModule(data.value)}" buttonMode="true">
+							<s:Rect width="100%" height="100%" radiusX="10">
+								<s:fill>
+									<s:SolidColor color="#EEEEEE" alpha="1"/>
+								</s:fill>
+								<s:stroke>
+									<s:SolidColorStroke color="#DDDDDD" />
+								</s:stroke>
+								
+							</s:Rect>
+							
+							<s:Image width="100%" height="100%" source="modules/home/icons/{data.label}.png" smooth="true" smoothingQuality="high" />
+							<s:Label text="{data.label}" fontSize="14" bottom="5" left="10" right="10" textAlign="center" color="#FFFFFF"/>
+						</s:Group>
+					</s:ItemRenderer>
+				</fx:Component>			
+			</s:itemRenderer>
+		</s:DataGroup>
+	</s:Group>
+</s:Group>

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dialog:DialogPanelBase xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:utils="lib.utils.*" xmlns:dialog="lib.page.dialog.*" minWidth="200" xmlns:component="lib.component.*" currentState="{text.length > 355 ? 'long' : 'normal'}" creationCompleteEffect="{isDialog ? 'Fade' : ''}">
+	<fx:Script>
+		<![CDATA[
+			import lib.utils.IconsChar;
+			
+			import mx.controls.Alert;
+			
+			[Bindable]
+			public var icon:String = IconsChar.confirmation_number;
+			
+			[Bindable]
+			public var type:uint = OK;
+			
+			[Bindable]
+			public var iconColor:uint = 0xBBBBBB; 
+			
+			[Bindable]
+			public static var YES:uint = 0x0001;
+			
+			[Bindable]
+			public static var NO:uint = 0x0002;
+			
+			[Bindable]
+			public static var OK:uint = 0x0004;
+			
+			[Bindable]
+			public static var CANCEL:uint = 0x0008;
+			
+			[Bindable]
+			public var isDialog:Boolean;
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<fx:String id="text" />
+	</fx:Declarations>
+	<dialog:states>
+		<s:State name="normal" />
+		<s:State name="long" />
+	</dialog:states>
+	<s:Group width="100%">
+		<s:Rect top="0" left="0" right="0" bottom="0" visible="{!isDialog}">
+			<s:fill>
+				<s:SolidColor color="#FFFFFF" />
+			</s:fill>
+		</s:Rect>
+		<s:Rect top="0" left="0" right="0" bottom="0" visible="{isDialog}" radiusX="5">
+			<s:filters>
+				<s:DropShadowFilter alpha="0.1" angle="90" blurX="20" blurY="20" strength="0.5"/>
+			</s:filters>
+			<s:fill>
+				<s:SolidColor color="#FAFAFA" />
+			</s:fill>
+			<s:stroke>
+				<s:SolidColorStroke color="#DDDDDD" />
+			</s:stroke>
+		</s:Rect>
+		<s:VGroup top="20" left="10" right="10" bottom="10">
+			<s:HGroup width="100%" verticalAlign="middle">
+				<s:Label text="{icon}" fontFamily="Icon" fontSize="60" color="{iconColor}"/>
+				<s:Label text="{text}" width="100%" fontSize="14" paddingTop="10" paddingLeft="10" paddingRight="10" paddingBottom="10" includeIn="normal"/>
+				<component:TextArea width="100%" text="{text}" paddingTop="10" paddingLeft="10" paddingRight="10" paddingBottom="10" heightInLines="30" minWidth="800" includeIn="long"/>
+			</s:HGroup>
+			<s:Line width="100%">
+				<s:stroke>
+					<s:SolidColorStroke color="#EEEEEE" />
+				</s:stroke>
+			</s:Line>
+			<s:HGroup width="100%" id="buttonHolder">
+				<s:Spacer width="100%" />
+				<component:Button label="Yes" click="{promise.resolve({selection:YES,dialog:this})}" visible="{(type &amp; YES) > 0}" includeInLayout="{(type &amp; YES) > 0}"/>
+				<component:Button label="No" click="{promise.resolve({selection:NO,dialog:this})}" visible="{(type &amp; NO) > 0}" includeInLayout="{(type &amp; NO) > 0}"/>
+				<component:Button label="Ok" click="{promise.resolve({selection:OK,dialog:this})}" visible="{(type &amp; OK) > 0}" includeInLayout="{(type &amp; OK) > 0}"/>
+				<component:Button label="Cancel" click="{promise.resolve({selection:CANCEL,dialog:this})}" visible="{(type &amp; CANCEL) > 0}" includeInLayout="{(type &amp; CANCEL) > 0}"/>
+			</s:HGroup>
+		</s:VGroup>
+	</s:Group>
+</dialog:DialogPanelBase>

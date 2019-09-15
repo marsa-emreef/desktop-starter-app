@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:skins="lib.component.skins.*" xmlns:component="lib.component.*" xmlns:utils="lib.utils.*"  >
+	<fx:Script>
+		<![CDATA[
+			import flash.globalization.DateTimeStyle;
+			
+			import lib.utils.EventPayloadPropertyChange;
+			import lib.utils.IconsChar;
+			import lib.utils.date.DatePart;
+			import lib.utils.date.DateUtils;
+			
+			import mx.events.CalendarLayoutChangeEvent;
+			public var cellWidth:Number = 25;
+			
+			private static const SUNDAY:Number = 0;
+			private static const MONDAY:Number = 1;
+			private static const TUESDAY:Number = 2;
+			private static const WEDNESDAY:Number = 3;
+			private static const THURSDAY:Number = 4;
+			private static const FRIDAY:Number = 5;
+			private static const SATURDAY:Number = 6;
+			
+			public function getDate(day:Number,week:Number,date:Date):Date{
+				var firstDayOfMonth:Date = new Date(date.fullYear,date.month,1);
+				var theNumberOfDay:Number = (firstDayOfMonth.date  - firstDayOfMonth.day - 1 + day) +(week*7);
+				return DateUtils.dateAdd(DatePart.DAY,theNumberOfDay,firstDayOfMonth);
+			}
+
+			[Bindable]
+			public var selectedDate:Date;
+			
+			[Bindable]
+			public var _internalDate:Date = new Date();
+			
+			protected function onDateSelected(event:MouseEvent):void
+			{
+				selectedDate = (event.currentTarget as DateChooserLabel).date;
+				dispatchEvent(new CalendarLayoutChangeEvent(CalendarLayoutChangeEvent.CHANGE,false,false,selectedDate));
+			}
+			
+			protected function onSelectedDateChange(event:EventPayloadPropertyChange):void
+			{
+				if(selectedDate && selectedDate != _internalDate){
+					_internalDate = selectedDate;
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<fx:Object id="selectableRange" />
+		<s:DateTimeFormatter id="monthPattern" dateTimePattern="MMM yyyy" />
+		<component:ComponentHoverColor component="{rightButton}" color="#AAAAAA" />
+		<component:ComponentHoverColor component="{leftButton}" color="#AAAAAA" />
+		<component:ComponentHoverColor component="{rightYearButton}" color="#AAAAAA" />
+		<component:ComponentHoverColor component="{leftYearButton}" color="#AAAAAA" />
+		<utils:ListenOnPropertyChange property="selectedDate" component="{this}" change="onSelectedDateChange(event)" />
+	</fx:Declarations>
+	<fx:Metadata>
+		[Event(name="change", type="flash.events.CalendarLayoutChangeEvent")]
+	</fx:Metadata>
+	<s:filters>
+		<s:DropShadowFilter alpha="0.1" blurX="10" angle="90"/>
+	</s:filters>
+	<s:Rect width="100%" height="100%">
+		<s:fill>
+			<s:SolidColor color="#FFFFFF" />
+		</s:fill>
+		<s:stroke>
+			<s:SolidColorStroke color="#EEEEEE" />
+		</s:stroke>
+	</s:Rect>	
+	<s:VGroup top="10" left="5" right="5" bottom="5">
+		<s:HGroup width="100%" verticalAlign="middle">
+			<s:Label id="leftYearButton" text="{IconsChar.fast_rewind}" fontFamily="Icon" click="_internalDate = DateUtils.dateAdd(DatePart.YEAR,-1,_internalDate)" fontSize="14"/>
+			<s:Label id="leftButton" text="{IconsChar.play_arrow}" rotation="180" fontFamily="Icon" click="_internalDate = DateUtils.dateAdd(DatePart.MONTH,-1,_internalDate)" fontSize="14"/>
+			<s:Label text="{monthPattern.format(_internalDate).toUpperCase()}" textAlign="center" width="100%"/>
+			<s:Label id="rightButton" text="{IconsChar.play_arrow}" fontFamily="Icon" click="_internalDate = DateUtils.dateAdd(DatePart.MONTH,1,_internalDate)" fontSize="14"/>
+			<s:Label id="rightYearButton" text="{IconsChar.fast_forward}" fontFamily="Icon" click="_internalDate = DateUtils.dateAdd(DatePart.YEAR,1,_internalDate)" fontSize="14"/>
+		</s:HGroup>
+		<s:VGroup gap="0">
+			<s:Line width="100%">
+				<s:stroke>
+					<s:SolidColorStroke color="#CCCCCC" weight="1" />
+				</s:stroke>
+			</s:Line>
+			
+			<s:HGroup gap="0" fontWeight="bold">
+				<s:Label width="25" height="25" paddingTop="7" textAlign="right" paddingRight="3" text="SU" />
+				<s:Label width="25" height="25" paddingTop="7" textAlign="right" paddingRight="3" text="MO" />
+				<s:Label width="25" height="25" paddingTop="7" textAlign="right" paddingRight="3" text="TU" />
+				<s:Label width="25" height="25" paddingTop="7" textAlign="right" paddingRight="3" text="WE" />
+				<s:Label width="25" height="25" paddingTop="7" textAlign="right" paddingRight="3" text="TH" />
+				<s:Label width="25" height="25" paddingTop="7" textAlign="right" paddingRight="3" text="FR" />
+				<s:Label width="25" height="25" paddingTop="7" textAlign="right" paddingRight="3" text="SA" />
+			</s:HGroup>
+			<s:Line width="100%">
+				<s:stroke>
+					<s:SolidColorStroke color="#CCCCCC" weight="1" />
+				</s:stroke>
+			</s:Line>
+			<s:HGroup gap="0">
+				<skins:DateChooserLabel date="{getDate(SUNDAY,0,_internalDate)}" click="onDateSelected(event)" selectableRange="{selectableRange}"/>
+				<skins:DateChooserLabel date="{getDate(MONDAY,0,_internalDate)}" click="onDateSelected(event)" selectableRange="{selectableRange}"/>
+				<skins:DateChooserLabel date="{getDate(TUESDAY,0,_internalDate)}" click="onDateSelected(event)" selectableRange="{selectableRange}"/>
+				<skins:DateChooserLabel date="{getDate(WEDNESDAY,0,_internalDate)}" click="onDateSelected(event)" selectableRange="{selectableRange}"/>
+				<skins:DateChooserLabel date="{getDate(THURSDAY,0,_internalDate)}" click="onDateSelected(event)" selectableRange="{selectableRange}"/>
+				<skins:DateChooserLabel date="{getDate(FRIDAY,0,_internalDate)}" click="onDateSelected(event)" selectableRange="{selectableRange}"/>
+				<skins:DateChooserLabel date="{getDate(SATURDAY,0,_internalDate)}" click="onDateSelected(event)" selectableRange="{selectableRange}"/>
+			</s:HGroup>
+			<s:HGroup gap="0">
+				<skins:DateChooserLabel date="{getDate(SUNDAY,1,_internalDate)}" click="onDateSelected(event)" selectableRange="{selectableRange}"/>
+				<skins:DateChooserLabel date="{getDate(MONDAY,1,_internalDate)}" click="onDateSelected(event)" selectableRange="{selectableRange}"/>
+				<skins:DateChooserLabel date="{getDate(TUESDAY,1,_internalDate)}" click="onDateSelected(event)" selectableRange="{selectableRange}"/>
+				<skins:DateChooserLabel date="{getDate(WEDNESDAY,1,_internalDate)}" click="onDateSelected(event)" selectableRange="{selectableRange}"/>
+				<skins:DateChooserLabel date="{getDate(THURSDAY,1,_internalDate)}" click="onDateSelected(event)" selectableRange="{selectableRange}"/>
+				<skins:DateChooserLabel date="{getDate(FRIDAY,1,_internalDate)}" click="onDateSelected(event)" selectableRange="{selectableRange}"/>
+				<skins:DateChooserLabel date="{getDate(SATURDAY,1,_internalDate)}" click="onDateSelected(event)" selectableRange="{selectableRange}"/>
+			</s:HGroup>
+			<s:HGroup gap="0">
+				<skins:DateChooserLabel date="{getDate(SUNDAY,2,_internalDate)}" click="onDateSelected(event)" selectableRange="{selectableRange}"/>
+				<skins:DateChooserLabel date="{getDate(MONDAY,2,_internalDate)}" click="onDateSelected(event)" selectableRange="{selectableRange}"/>
+				<skins:DateChooserLabel date="{getDate(TUESDAY,2,_internalDate)}" click="onDateSelected(event)" selectableRange="{selectableRange}"/>
+				<skins:DateChooserLabel date="{getDate(WEDNESDAY,2,_internalDate)}" click="onDateSelected(event)" selectableRange="{selectableRange}"/>
+				<skins:DateChooserLabel date="{getDate(THURSDAY,2,_internalDate)}" click="onDateSelected(event)" selectableRange="{selectableRange}"/>
+				<skins:DateChooserLabel date="{getDate(FRIDAY,2,_internalDate)}" click="onDateSelected(event)" selectableRange="{selectableRange}"/>
+				<skins:DateChooserLabel date="{getDate(SATURDAY,2,_internalDate)}" click="onDateSelected(event)" selectableRange="{selectableRange}"/>
+			</s:HGroup>
+			<s:HGroup gap="0">
+				<skins:DateChooserLabel date="{getDate(SUNDAY,3,_internalDate)}" click="onDateSelected(event)" selectableRange="{selectableRange}"/>
+				<skins:DateChooserLabel date="{getDate(MONDAY,3,_internalDate)}" click="onDateSelected(event)" selectableRange="{selectableRange}"/>
+				<skins:DateChooserLabel date="{getDate(TUESDAY,3,_internalDate)}" click="onDateSelected(event)" selectableRange="{selectableRange}"/>
+				<skins:DateChooserLabel date="{getDate(WEDNESDAY,3,_internalDate)}" click="onDateSelected(event)" selectableRange="{selectableRange}"/>
+				<skins:DateChooserLabel date="{getDate(THURSDAY,3,_internalDate)}" click="onDateSelected(event)" selectableRange="{selectableRange}"/>
+				<skins:DateChooserLabel date="{getDate(FRIDAY,3,_internalDate)}" click="onDateSelected(event)" selectableRange="{selectableRange}"/>
+				<skins:DateChooserLabel date="{getDate(SATURDAY,3,_internalDate)}" click="onDateSelected(event)" selectableRange="{selectableRange}"/>
+			</s:HGroup>
+			<s:HGroup gap="0">
+				<skins:DateChooserLabel date="{getDate(SUNDAY,4,_internalDate)}" click="onDateSelected(event)" selectableRange="{selectableRange}"/>
+				<skins:DateChooserLabel date="{getDate(MONDAY,4,_internalDate)}" click="onDateSelected(event)" selectableRange="{selectableRange}"/>
+				<skins:DateChooserLabel date="{getDate(TUESDAY,4,_internalDate)}" click="onDateSelected(event)" selectableRange="{selectableRange}"/>
+				<skins:DateChooserLabel date="{getDate(WEDNESDAY,4,_internalDate)}" click="onDateSelected(event)" selectableRange="{selectableRange}"/>
+				<skins:DateChooserLabel date="{getDate(THURSDAY,4,_internalDate)}" click="onDateSelected(event)" selectableRange="{selectableRange}"/>
+				<skins:DateChooserLabel date="{getDate(FRIDAY,4,_internalDate)}" click="onDateSelected(event)" selectableRange="{selectableRange}"/>
+				<skins:DateChooserLabel date="{getDate(SATURDAY,4,_internalDate)}" click="onDateSelected(event)" selectableRange="{selectableRange}"/>
+			</s:HGroup>
+			<s:HGroup gap="0">
+				<skins:DateChooserLabel date="{getDate(SUNDAY,5,_internalDate)}" click="onDateSelected(event)" selectableRange="{selectableRange}"/>
+				<skins:DateChooserLabel date="{getDate(MONDAY,5,_internalDate)}" click="onDateSelected(event)" selectableRange="{selectableRange}"/>
+				<skins:DateChooserLabel date="{getDate(TUESDAY,5,_internalDate)}" click="onDateSelected(event)" selectableRange="{selectableRange}"/>
+				<skins:DateChooserLabel date="{getDate(WEDNESDAY,5,_internalDate)}" click="onDateSelected(event)" selectableRange="{selectableRange}"/>
+				<skins:DateChooserLabel date="{getDate(THURSDAY,5,_internalDate)}" click="onDateSelected(event)" selectableRange="{selectableRange}"/>
+				<skins:DateChooserLabel date="{getDate(FRIDAY,5,_internalDate)}" click="onDateSelected(event)" selectableRange="{selectableRange}"/>
+				<skins:DateChooserLabel date="{getDate(SATURDAY,5,_internalDate)}" click="onDateSelected(event)" selectableRange="{selectableRange}"/>
+			</s:HGroup>
+		</s:VGroup>
+	</s:VGroup>
+</s:Group>

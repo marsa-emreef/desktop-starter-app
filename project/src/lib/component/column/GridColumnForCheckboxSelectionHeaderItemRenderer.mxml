@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:GridItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					xmlns:s="library://ns.adobe.com/flex/spark" 
+					xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%">
+	<fx:Script>
+		<![CDATA[
+			import lib.utils.Debounce;
+			import lib.utils._;
+			
+			import mx.collections.ArrayCollection;
+			
+			protected function onCheckboxChanged(event:Event):void
+			{
+				var gridColumn:GridColumnForCheckboxSelection = column as GridColumnForCheckboxSelection;
+				if(cb.selected){
+					for each (var rowData:Object in column.grid.dataGrid.dataProvider) 
+					{
+						var checkboxIsVisible:Boolean = gridColumn.visibleFunction.apply(null,[rowData,column]);
+						var checkboxIsEnabled:Boolean = gridColumn.enabledFunction.apply(null,[rowData,column]);
+						if(checkboxIsEnabled && checkboxIsVisible && gridColumn.selectedData.getItemIndex(rowData) < 0){
+							gridColumn.selectedData.addItem(rowData);
+						}
+					}
+				}else{
+					gridColumn.selectedData.removeAll();
+				}
+			}
+			
+			private var allIsSelected:Function = Debounce.create(_allIsSelected,30);
+			
+			private function _allIsSelected(trigger:Number):void{
+				var arrayCollections:ArrayCollection = column.grid.dataGrid.dataProvider as ArrayCollection;
+				var gridColumn:GridColumnForCheckboxSelection = column as GridColumnForCheckboxSelection;
+				for each (var rowData:Object in arrayCollections) 
+				{
+					var checkboxIsVisible:Boolean = gridColumn.visibleFunction.apply(null,[rowData,column]);
+					var checkboxIsEnabled:Boolean = gridColumn.enabledFunction.apply(null,[rowData,column]);
+					var itemIsSelected:Boolean = gridColumn.selectedData.getItemIndex(rowData) >= 0;
+					if(checkboxIsVisible && checkboxIsEnabled && !itemIsSelected){
+						cb.selected = false;
+						return 
+					}
+				}
+				cb.selected = gridColumn.selectedData.length > 0;
+			}
+		]]>
+	</fx:Script>
+	<s:CheckBox id="cb" verticalCenter="0" horizontalCenter="0" change="onCheckboxChanged(event)" selected="{allIsSelected((column as GridColumnForCheckboxSelection).selectedData.length)}" />
+</s:GridItemRenderer>

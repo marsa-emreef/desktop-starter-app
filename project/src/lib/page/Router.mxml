@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:component="lib.component.*" xmlns:modules="modules.*" xmlns:context="modules.context.*" xmlns:page="lib.page.*" xmlns:utils="lib.utils.*" xmlns:setup="lib.page.setup.*" xmlns:status="lib.component.status.*" xmlns:dialog="lib.page.dialog.*" >
+	<fx:Script>
+		<![CDATA[
+			import lib.utils.ColorCoding;
+			import lib.utils.Debounce;
+			import lib.utils.IconsChar;
+			import lib.utils._;
+			
+			import mx.binding.utils.BindingUtils;
+			import mx.events.FlexEvent;
+			
+			import spark.events.IndexChangeEvent;
+			
+			protected function onRouterCreationComplete(event:FlexEvent):void
+			{
+				addViewStack();
+			}
+			
+			private function addViewStack():void
+			{
+				var moduleNavigatorContent:Navigator = new Navigator();
+				viewStack.addItem(moduleNavigatorContent);
+				viewStack.selectedChild = moduleNavigatorContent;
+				moduleNavigatorContent.loadModule('home');
+			}
+			
+			[Bindable]
+			public var selectedNavigatorContent:Navigator;
+			
+			protected function onLoadModuleClicked():void
+			{
+				selectedNavigatorContent.loadModule(inputModuleAddress.text);
+			}
+			
+			protected function onKeyDown(event:KeyboardEvent):void
+			{
+				if(event.keyCode == Keyboard.ENTER){
+					onLoadModuleClicked();
+				}
+			}
+			
+			protected function onTabSelectionChange(event:FlexEvent):void
+			{
+				if(selectedNavigatorContent){
+					selectedNavigatorContent.tabExited();
+				}
+				selectedNavigatorContent = viewStack.selectedChild as Navigator;
+				if(selectedNavigatorContent){
+					selectedNavigatorContent.tabEntered();	
+				}
+				
+				if(selectedNavigatorContent && !selectedNavigatorContent.moduleLoaded){
+					//addressPath.displayContent = true;
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<context:AppContext id="context"/>
+		<utils:ParentLookup component="{this}" property="context" parentClass="{AppContext}" />
+		<fx:Boolean id="mouseIsOver" />
+		<component:ComponentHoverColor component="{navigateBefore}" color="{ColorCoding.GREEN}" />
+		<component:ComponentHoverColor component="{navigateAfter}" color="{ColorCoding.GREEN}" />
+		<fx:Boolean id="deactivateRouter" />
+		<utils:BindProperty property="deactivateRouter" component="{this}" value="{selectedNavigatorContent.deactivateNavigator}" />
+		
+	</fx:Declarations>
+	<s:Group width="100%" height="100%" >
+		<s:Group width="100%" bottom="0" top="{tabBarHolder.height}">
+			<s:Rect width="100%" height="100%" >
+				<s:fill>
+					<s:SolidColor color="#FEFEFE" />
+				</s:fill>
+			</s:Rect>
+			<s:Line width="100%" top="-1">
+				<s:stroke>
+					<s:SolidColorStroke color="#DDDDDD" weight="1" />
+				</s:stroke>
+			</s:Line>
+			<s:Group width="100%" height="100%">
+				<s:Group width="100%" height="100%" >
+					<mx:ViewStack top="25" left="0" right="0" bottom="0" id="viewStack" creationComplete="onRouterCreationComplete(event)" click="{addressPath.displayContent = false}" valueCommit="onTabSelectionChange(event)" />
+					<s:Group width="100%" height="26" >
+						<s:Rect width="100%" height="100%" alpha="0.1">
+							<s:filters>
+								<s:DropShadowFilter inner="true" angle="-90" distance="10" blurY="10" color="#CCCCCC"/>
+							</s:filters>
+							<s:fill>
+								<s:SolidColor color="#FFFFFF" />
+							</s:fill>
+						</s:Rect>
+						<s:HGroup verticalAlign="middle" height="100%" width="100%" paddingLeft="5" gap="5" paddingRight="5" enabled="{!deactivateRouter}">
+							<s:Group visible="{selectedNavigatorContent.historyBackwardAllowed}" click="{selectedNavigatorContent.historyBack()}">
+								<s:Ellipse width="100%" height="100%">
+									<s:stroke>
+										<s:SolidColorStroke color="#CCCCCC" />
+									</s:stroke>
+								</s:Ellipse>
+								<s:Label text="{IconsChar.navigate_before}"  fontFamily="Icon" fontSize="18" id="navigateBefore" color="#666666" left="-1"/>	
+							</s:Group>
+							<s:Group visible="{selectedNavigatorContent.historyForwardAllowed}" click="{selectedNavigatorContent.historyForward()}">
+								<s:Ellipse width="100%" height="100%">
+									<s:stroke>
+										<s:SolidColorStroke color="#CCCCCC" />
+									</s:stroke>
+								</s:Ellipse>
+								<s:Label text="{IconsChar.navigate_next}"  fontFamily="Icon" fontSize="18" id="navigateAfter" color="#666666"/>	
+							</s:Group>
+							<s:Spacer width="100%" />
+							<s:Group click="{addressPath.displayContent = true}" rotation="90">
+								<s:Ellipse width="100%" height="100%">
+									<s:stroke>
+										<s:SolidColorStroke color="#CCCCCC" />
+									</s:stroke>
+								</s:Ellipse>
+								<s:Label text="{IconsChar.navigate_next}"  fontFamily="Icon" fontSize="18"  color="#666666"/>	
+							</s:Group>
+						</s:HGroup>
+						<s:Line width="100%" bottom="0">
+							<s:stroke>
+								<s:SolidColorStroke color="#DDDDDD" weight="1"/>
+							</s:stroke>
+						</s:Line>
+					</s:Group>
+				</s:Group>
+				<component:Slider id="addressPath" height="100%" width="100%" clickedOutsideContent="{addressPath.displayContent = false}" visible="{!deactivateRouter}">
+					<s:Group width="{addressPath.width}" >
+						<s:Rect width="100%" height="100%">
+							<s:fill>
+								<s:SolidColor color="#FFFFFF" />
+							</s:fill>
+						</s:Rect>
+						<s:HGroup width="100%" verticalAlign="bottom" paddingLeft="10" paddingRight="10" paddingTop="10" paddingBottom="10">
+							<component:Button skinClass="lib.component.skins.ButtonIconSkin" label="{IconsChar.navigate_before}" click="{selectedNavigatorContent.historyBack()}" enabled="{selectedNavigatorContent.historyBackwardAllowed}"/>
+							<component:Button skinClass="lib.component.skins.ButtonIconSkin" label="{IconsChar.navigate_next}" click="{selectedNavigatorContent.historyForward()}" enabled="{selectedNavigatorContent.historyForwardAllowed}"/>
+							<component:TextInput prompt="Enter Module Path" width="100%" text="{selectedNavigatorContent.address}" id="inputModuleAddress" keyDown="onKeyDown(event)" autoCap="false"/>
+							<component:Button click="onLoadModuleClicked()" label="{IconsChar.play_arrow}" skinClass="lib.component.skins.ButtonIconSkin"/>
+							<component:Button click="{addressPath.displayContent = false}" label="{IconsChar.close}" skinClass="lib.component.skins.ButtonIconSkin"/>
+						</s:HGroup>
+						<s:Line width="100%" bottom="0">
+							<s:stroke>
+								<s:SolidColorStroke color="#DDDDDD" weight="1" />
+							</s:stroke>
+						</s:Line>
+					</s:Group>
+				</component:Slider>
+			</s:Group>
+		</s:Group>
+		<s:VGroup id="tabBarHolder" width="100%" >
+			<s:HGroup width="100%" gap="1" paddingLeft="10" paddingRight="10"  >
+				<s:Group maxWidth="{tabBarHolder.width - 20 - addButton.width - _.getProperty(viewStack,'numElements')}" height="100%" clipAndEnableScrolling="true">
+					<s:DataGroup dataProvider="{viewStack}" height="100%" >
+						<s:layout>
+							<s:HorizontalLayout gap="1" />
+						</s:layout>
+						<s:itemRenderer>
+							<fx:Component>
+								<component:ItemRenderer click="{outerDocument.viewStack.selectedChild = data as NavigatorContent}"  height="100%" mouseOver="{closeButton.visible = true}" mouseOut="{closeButton.visible = false}">
+									<fx:Script>
+										<![CDATA[
+											import lib.utils.ColorCoding;
+											import lib.utils.IconsChar;
+											
+											import spark.components.NavigatorContent;
+										]]>
+									</fx:Script>
+									<s:Rect top="0" left="0" right="0" bottom="0">
+										<s:fill>
+											<s:SolidColor color="{outerDocument.viewStack.selectedChild == data ? 0xFFFFFF : 0xDDDDDD }" />
+										</s:fill>
+										<s:stroke>
+											<s:SolidColorStroke color="#DDDDDD" />
+										</s:stroke>
+									</s:Rect>
+									<s:Line width="100%" bottom="0" visible="{outerDocument.viewStack.selectedChild == data}">
+										<s:stroke>
+											<s:SolidColorStroke color="#FFFFFF" weight="1" />
+										</s:stroke>
+									</s:Line>
+									<s:HGroup left="10" right="5" bottom="5" gap="5" verticalAlign="middle" >
+										<s:Label text="{data.label}"  maxDisplayedLines="1" width="100%" paddingTop="3"/>
+										<s:Group visible="{!(data as Navigator).deactivateNavigator}">
+											<s:Label id="closeButton" fontFamily="Icon" text="{IconsChar.close }" visible="false" right="5" mouseOver="{closeButton.text = IconsChar.cancel}" mouseOut="{closeButton.text = IconsChar.close}" color="{ColorCoding.RED}" fontSize="14" click="{event.preventDefault();event.stopPropagation(); outerDocument.viewStack.removeItemAt(itemIndex)}"/>	
+										</s:Group>
+									</s:HGroup>
+								</component:ItemRenderer>
+							</fx:Component>
+						</s:itemRenderer>
+					</s:DataGroup>
+				</s:Group>
+				
+				<component:Button id="addButton" label="{IconsChar.add}" click="{addViewStack()}" skinClass="lib.component.skins.ButtonIconSkin" focusEnabled="false"/>
+			</s:HGroup>
+		</s:VGroup>
+	</s:Group>
+</s:Group>

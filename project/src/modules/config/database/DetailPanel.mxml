@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 width.normal="100%" 
+		 width.array="100%"
+		 width.object="100%"
+		 width.minimize="25"
+		 height="100%" xmlns:context="modules.context.*" xmlns:utils="lib.utils.*" currentState="{isMinimize ? 'minimize' :  resultType == '' ? 'normal' : resultType}" xmlns:component="lib.component.*" >
+	
+	<fx:Script>
+		<![CDATA[
+			import lib.utils.IconsChar;
+			import lib.utils.PayloadEvent;
+			import lib.utils._;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			import mx.utils.ObjectProxy;
+			import mx.utils.StringUtil;
+			
+			import spark.events.GridEvent;
+			
+			protected function onReady(event:Event):void
+			{
+				var describeQuery:String = StringUtil.substitute('catalog => describe({0})',path);
+				context.query(describeQuery).then(function(res:*):*{
+					if(res.success){
+						resultType = res.result[0] && res.result[0] == 'object' ? 'array' : 'object';
+					}
+				});
+			}
+			
+			protected function populateObject(path:String,context:AppContext,grid:DataGrid):ArrayCollection{
+				if(path && context && grid){
+					var query:String = StringUtil.substitute('catalog => {0}',path);
+					context.query(query).then(function(res:*):*{
+						var array:Array = [];
+						if(_.typeOfValue(res.result) == 'object'){
+							for (var key:String in res.result) 
+							{
+								array.push(new ObjectProxy({label:key,value:res.result[key]}));
+							}
+						}else{
+							array.push(new ObjectProxy({label:path,value:res.result}));
+						}
+						grid.dataProvider = _.toArrayCollection(array,'label');
+					});
+				}
+				return new ArrayCollection();
+			}
+			
+			protected function populateArray(path:String,context:AppContext,grid:DataGrid):ArrayCollection{
+				if(path && context && grid){
+					var query:String = StringUtil.substitute('catalog => {0}',path);
+					context.query(query).then(function(res:*):*{
+						if(res && res.result && res.result[0]){
+							var firstData:Object = res.result[0];
+							var keys:Array = [];
+							for(var key:String in firstData){
+								keys.push(key);
+							}
+							keys = keys.sort();
+							grid.columns = new ArrayList(_.map(keys,function(key:String):GridColumn{
+								var gc:GridColumn = new GridColumn(key);
+								gc.minWidth = 80;
+								gc.maxWidth = 200;
+								return gc;
+							}));
+							grid.dataProvider = new ArrayCollection(res.result);
+						}
+					});
+				}
+				return new ArrayCollection();
+			}
+			
+			protected function onGridForArrayDoubleClicked(event:GridEvent):void{
+				
+				var rowIndex:Number = event.rowIndex;
+				if(rowIndex >= 0){
+					var key:String = event.column.dataField;
+					var originalRowIndex:Number = (gridForArray.dataProvider as ArrayCollection).source.indexOf(gridForArray.dataProvider.getItemAt(rowIndex))
+					var pathToOpen:String = StringUtil.substitute('{0}[{1}].{2}',path,originalRowIndex,key);
+					var evt:PayloadEvent = new PayloadEvent('openDetail',{path:pathToOpen});
+					dispatchEvent(evt);	
+				}
+				
+			}
+			
+			protected function onGridForObjectDoubleClicked(event:GridEvent):void{
+				if(event.rowIndex >= 0){
+					var key:String = gridForObject.dataProvider.getItemAt(event.rowIndex).label;
+					var rowIndex:Number = event.rowIndex;
+					var pathToOpen:String = StringUtil.substitute('{0}.{1}',path,key);
+					var evt:PayloadEvent = new PayloadEvent('openDetail',{path:pathToOpen});
+					dispatchEvent(evt);	
+				}
+			}
+			
+			protected function onToggleMinMax(event:Event):void{
+				isMinimize = !isMinimize;
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Metadata>
+		[Event(name="openDetail", type="lib.utils.PayloadEvent")]
+	</fx:Metadata>
+	<fx:Declarations>
+		<fx:String id="resultType" />
+		<fx:Boolean id="isMinimize" />
+		<fx:String id="path" />
+		<context:AppContext id="context" />
+		<utils:ParentLookup component="{this}" property="context" parentClass="{AppContext}" lookupComplete="onReady(event)"/>
+	</fx:Declarations>
+	<s:states>
+		<s:State name="normal" />
+		<s:State name="object" />
+		<s:State name="array" />
+		<s:State name="minimize" />
+	</s:states>
+	<s:Group width="100%" height="100%" >
+		<s:Rect width="100%" height="100%">
+			<s:fill>
+				<s:SolidColor color="#EFEFEF" />
+			</s:fill>
+		</s:Rect>
+		<s:Line height="100%" right="0">
+			<s:stroke>
+				<s:SolidColorStroke color="#CCCCCC" />
+			</s:stroke>
+		</s:Line>
+	</s:Group>
+	<s:VGroup width="100%" height="100%"  gap="0" paddingTop="0">
+		<s:Group width="100%" height="23">
+			<component:GlobalFilter dataGrid.object="{gridForObject}" dataGrid.array="{gridForArray}"  width="100%" top="1" left="1" right="1" bottom="0"/>
+			<component:Button skinClass="lib.component.skins.ButtonIconSkin" label="{IconsChar.fast_rewind}" label.minimize="{IconsChar.fast_forward}" right="0" click="onToggleMinMax(event)" delay="0"/>
+		</s:Group>
+		<component:DataGrid id="gridForObject" width="100%" height="100%" editable="true" dataProvider="{populateObject(path,context,gridForObject)}" selectionMode="singleRow" doubleClickEnabled="true" gridDoubleClick="onGridForObjectDoubleClicked(event)" includeIn="object">
+			<component:columns>
+				<s:ArrayList>
+					<s:GridColumn dataField="label" headerText="Field" minWidth="80" />
+					<s:GridColumn dataField="value" headerText="Value" minWidth="80" maxWidth="200" />
+				</s:ArrayList>
+			</component:columns>
+		</component:DataGrid>
+		<component:DataGrid id="gridForArray" width="100%" height="100%" dataProvider="{populateArray(path,context,gridForArray)}" selectionMode="singleCell" doubleClickEnabled="true" gridDoubleClick="onGridForArrayDoubleClicked(event)" editable="true" includeIn="array"/>
+	</s:VGroup>
+	
+</s:Group>

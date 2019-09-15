@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:component="lib.component.*" addedToStage="onAddedToStage(event)" removedFromStage="onRemovedFromStage(event)" xmlns:context="modules.context.*" xmlns:utils="lib.utils.*">
+	<fx:Script>
+		<![CDATA[
+			import lib.page.dialog.DialogContainer;
+			import lib.page.dialog.DialogPanel;
+			import lib.utils.IconsChar;
+			public var timer:Timer = new Timer(1000);
+			
+			protected function onAddedToStage(event:Event):void
+			{
+				timer.addEventListener(TimerEvent.TIMER,onTimerCalled);
+				timer.start();
+			}
+			
+			protected function onRemovedFromStage(event:Event):void
+			{
+				timer.removeEventListener(TimerEvent.TIMER,onTimerCalled);
+				timer.stop();
+			}
+			
+			protected function onTimerCalled(event:TimerEvent):void
+			{
+				freeMemory = numberFormatter.format(System.freeMemory / 1000000);
+				totalMemory = numberFormatter.format(System.totalMemoryNumber / 1000000);
+				privateMemory = numberFormatter.format(System.privateMemory / 1000000);
+			}
+			
+			protected function onCloseDetail(event:MouseEvent):void
+			{
+				currentState = 'default';
+			}
+			
+			protected function onOpenDetail(event:MouseEvent):void
+			{
+				currentState = 'detail';
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<fx:String id="freeMemory" />
+		<fx:String id="totalMemory" />
+		<fx:String id="privateMemory" />
+		<s:NumberFormatter id="numberFormatter" />
+		<context:AppContext id="context"/>
+		<utils:ParentLookup component="{this}" parentClass="{AppContext}" property="context"/>
+	</fx:Declarations>
+	<s:states>
+		<s:State name="default" />
+		<s:State name="detail" />
+	</s:states>
+	<s:HGroup verticalAlign="middle">
+		<s:Label fontFamily="Icon" text="{IconsChar.developer_mode}" fontSize="12" click="onOpenDetail(event)" includeIn="default" paddingBottom="3" alpha="0.3"/>
+		<s:Group >
+			<s:Rect width="100%" height="100%" alpha="0.9" radiusX="5">
+				<s:fill>
+					<s:SolidColor color="#DDDDDD" />
+				</s:fill>
+			</s:Rect>			
+			<s:HGroup click="onCloseDetail(event)" includeIn="detail" fontSize="12" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5">
+				<s:Label text="{freeMemory} Mb Free" />
+				<s:Label text="{totalMemory} Mb Usage" />
+				<s:Label text="{privateMemory} Mb Total" />	
+			</s:HGroup>
+		</s:Group>
+	</s:HGroup>
+</s:Group>

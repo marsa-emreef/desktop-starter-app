@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Module xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		  xmlns:s="library://ns.adobe.com/flex/spark" 
+		  xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" xmlns:context="modules.context.*" xmlns:utils="lib.utils.*" xmlns:keyboard="lib.utils.keyboard.*" xmlns:component="lib.component.*" >
+	
+	<fx:Script>
+		<![CDATA[
+			import lib.utils.Debounce;
+			import lib.utils._;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.ArrayList;
+			
+			import spark.components.gridClasses.GridColumn;
+			protected function onReady(event:Event):void
+			{
+				
+			}
+			
+			protected function onKeyDown(event:KeyboardEvent):void
+			{
+				if(event.keyCode == Keyboard.ENTER && event.shiftKey){
+					event.preventDefault();
+					event.stopImmediatePropagation();
+					event.stopPropagation();
+					context.query(queryTextArea.text).then(function(res:*):void{
+						if(res.result){
+							queryResult = res.result;
+							var result:* = res.result;
+							if(result is Array){
+								populateGrid(result);
+							}else if(result){
+								populateGrid([result]);
+							}
+						}
+					})
+				}
+			}
+			
+			private var populateGrid:Function = Debounce.create(_populateGrid,300);
+			
+			private function _populateGrid(result:Array):void
+			{
+				var item:Object = result[0];
+				var itemKeys:Array = [];
+				for (var key:String in item){
+					itemKeys.push(key);
+				}
+				itemKeys = itemKeys.sort();
+				var columns:ArrayList = new ArrayList();
+				_.forEach(itemKeys,function(key:*):void{
+					var col:GridColumn = new GridColumn();
+					col.dataField = key;
+					col.headerText = key;
+					col.minWidth = 100;
+					columns.addItem(col);
+				});
+				dataGrid.columns = columns;
+				dataGrid.dataProvider = new ArrayCollection(result);
+				dataGrid.invalidateDisplayList();
+			}
+			
+			[Bindable]
+			public var queryResult:*;
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<fx:String id="title" >Query Catalog</fx:String>
+		<context:AppContext id="context" />
+		<utils:ParentLookup component="{this}" property="context" parentClass="{AppContext}" lookupComplete="onReady(event)"/>
+	</fx:Declarations>
+	<s:HGroup top="10" left="10" right="10" bottom="10">
+		<component:Minimizeable width="100%" height="100%" title="Query" direction="left">
+			<s:Panel title="Query" width="100%" height="100%">
+				<component:TextArea width="100%" height="100%" id="queryTextArea" prompt="(catalog) => catalog" keyDown="onKeyDown(event)" autoCap="false" />
+			</s:Panel>
+		</component:Minimizeable>
+		<component:Minimizeable width="100%" height="100%" title="Grid" direction="left">
+			<s:Panel title="Grid" width="100%" height="100%">
+				<component:DataGrid id="dataGrid" width="100%" height="100%" variableRowHeight="true" editable="true"/>
+			</s:Panel>	
+		</component:Minimizeable>
+		<component:Minimizeable width="100%" height="100%" title="Json" direction="left" isMinimize="true">
+			<s:Panel title="Json" width="100%" height="100%">
+				<component:TextArea id="jsonResult" width="100%" height="100%" text="{JSON.stringify(queryResult,null,4)}"/>
+			</s:Panel>	
+		</component:Minimizeable>	
+	</s:HGroup>
+	
+	
+</s:Module>

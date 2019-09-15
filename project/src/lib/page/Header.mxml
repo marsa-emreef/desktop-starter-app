@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" xmlns:component="lib.component.*" xmlns:page="lib.page.*" xmlns:context="modules.context.*" xmlns:utils="lib.utils.*" xmlns:mission="modules.mission.*" >
+	<fx:Script>
+		<![CDATA[
+			import lib.utils.ColorCoding;
+			import lib.utils.IconsChar;
+			import lib.utils._;
+			import lib.utils.label_function.LF;
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<context:AppContext id="context" />
+		<utils:ParentLookup component="{this}" parentClass="{AppContext}" property="context" />
+		<fx:Boolean id="displaySecondPanel" />
+		<component:ComponentHoverColor component="{toggleIcon}" color="{ColorCoding.GREEN}" />
+		<s:NumberFormatter id="nf" fractionalDigits="1" />
+	</fx:Declarations>
+	<s:Rect width="100%" height="100%">
+		<s:fill>
+			<s:SolidColor color="#FFFFFF" />
+		</s:fill>
+	</s:Rect>
+	<s:Line width="100%" bottom="0">
+		<s:stroke>
+			<s:SolidColorStroke color="#DDDDDD" />
+		</s:stroke>
+	</s:Line>
+	<s:HGroup left="10" bottom="5" top="5" right="10" verticalAlign="bottom">
+		<s:Spacer width="100%" />
+		<s:HGroup gap="10" paddingBottom="-7">
+		</s:HGroup>
+		<s:Label id="toggleIcon" text="{IconsChar.flip}" fontFamily="Icon" fontSize="18" click="{displaySecondPanel = !displaySecondPanel}" />
+	</s:HGroup>
+</s:Group>

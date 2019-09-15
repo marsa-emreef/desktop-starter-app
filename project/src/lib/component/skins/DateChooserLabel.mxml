@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="25" height="25"  rollOver="onRollOver(event)" rollOut="onRollOut(event)" enabled="{isInActiveRange(selectableRange,date)}" >
+	
+	<fx:Script>
+		<![CDATA[
+			import lib.utils.PayloadEvent;
+			protected function onRollOver(event:MouseEvent):void
+			{
+				isHovered = true;
+				decrease.stop();
+				increase.play();
+			}
+			
+			protected function onRollOut(event:MouseEvent):void
+			{
+				isHovered = false;
+				increase.stop();
+				decrease.play();				
+			}
+			
+			private function isInActiveRange(range:Object,date:Date):Boolean{
+				var rangeStart:Date = range && range.rangeStart ? new Date(range.rangeStart.fullYear,range.rangeStart.month,range.rangeStart.date)  : new Date(1900,0,1);
+				var rangeEnd:Date = range && range.rangeEnd ? new Date(range.rangeEnd.fullYear,range.rangeEnd.month,range.rangeEnd.date,23,59,59) : new Date(3000,0,1);
+				return(date >= rangeStart && date <= rangeEnd);
+			}
+			
+			private function getDate(date:Date):Number{
+				return date.date;
+			}
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<fx:Object id="selectableRange" />
+		<fx:Boolean id="isHovered" />
+		<fx:Date id="date" />
+		<s:Parallel id="increase" duration="100">
+			<mx:AnimateProperty toValue="16" property="fontSize" target="{label}" isStyle="true"  effectStart="{isHovered=true}"/>
+			<!--<s:AnimateColor colorTo="#FFFFCC" target="{bgColor}" />-->
+		</s:Parallel>
+		<s:Parallel id="decrease" duration="100">
+			<mx:AnimateProperty toValue="12" property="fontSize" target="{label}" isStyle="true"  effectEnd="{isHovered=false}"/>
+			<!--<s:AnimateColor colorTo="#FFFFFF" target="{bgColor}" />-->
+		</s:Parallel>
+	</fx:Declarations>
+	
+	<s:Ellipse top="0" left="0" right="0" bottom="0">
+		<s:fill>
+			<s:SolidColor color="#FFFFFF" id="bgColor"/>
+		</s:fill>
+	</s:Ellipse>
+	<s:Label id="label" text="{getDate(date)}" width="100%" bottom="3" textAlign="right" fontSize="12" paddingRight="3" alpha="{isInActiveRange(selectableRange,date) ? 1 : 0.2}"/>
+</s:Group>

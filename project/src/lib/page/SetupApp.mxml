@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"  xmlns:component="lib.component.*" xmlns:validation="lib.utils.validation.*" xmlns:context="modules.context.*" xmlns:utils="lib.utils.*">
+	<fx:Script>
+		<![CDATA[
+			import lib.utils._;
+			import lib.utils.encryption.Encryption;
+			
+			import modules.config.database.model.Catalog;
+			import modules.config.database.model.User;
+			
+			import mx.utils.UIDUtil;
+			
+			protected function onContinue(event:MouseEvent):void
+			{
+				if(validator.allValid(true)){
+					var catalog:Catalog = new Catalog();
+					var encrypt:Encryption = Encryption.encryptData(inputPassword.text);
+					catalog.users = [new User({
+						userName:inputUserName.text,
+						password:encrypt.data,
+						ts:encrypt.time,
+						isAdmin:true})];
+					context.saveDb(catalog).then(function(res:*):void{
+						closePanel();
+					});
+				}
+			}
+			
+			public function closePanel():void
+			{
+				dispatchEvent(new Event('close'));				
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Metadata>
+		[Event(name="close", type="flash.events.Event")]
+	</fx:Metadata>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+		<validation:And id="validator">
+			<validation:Valid componentEventToTriggerTheError="change" 
+							  componentToTriggerTheError="{inputUserName}" 
+							  expected="{_.isNotEmpty(inputUserName.text)}" errorMessage="User Name is Required">
+				<validation:componentToHighlightTheError>
+					<validation:ComponentToHighlightTheError component="{inputUserName}" />
+				</validation:componentToHighlightTheError>
+			</validation:Valid>
+			
+			<validation:Valid componentEventToTriggerTheError="change" 
+							  componentToTriggerTheError="{inputPassword}" 
+							  expected="{_.isNotEmpty(inputPassword.text)}" errorMessage="Password is Required">
+				<validation:componentToHighlightTheError>
+					<validation:ComponentToHighlightTheError component="{inputPassword}" />
+				</validation:componentToHighlightTheError>
+			</validation:Valid>
+			<validation:Valid componentEventToTriggerTheError="change" 
+							  componentToTriggerTheError="{inputPasswordConfirm}" 
+							  expected="{_.isNotEmpty(inputPasswordConfirm.text)}" errorMessage="Password is Required">
+				<validation:componentToHighlightTheError>
+					<validation:ComponentToHighlightTheError component="{inputPasswordConfirm}" />
+				</validation:componentToHighlightTheError>
+			</validation:Valid>
+			
+			<validation:Valid componentEventToTriggerTheError="change" 
+							  componentToTriggerTheError="{inputPasswordConfirm}" 
+							  expected="{inputPassword.text == inputPasswordConfirm.text}" errorMessage="Password is Not Match">
+				<validation:componentToHighlightTheError>
+					<validation:ComponentToHighlightTheError component="{inputPasswordConfirm}" />
+				</validation:componentToHighlightTheError>
+			</validation:Valid>
+		</validation:And>
+		<context:AppContext id="context" />
+		<utils:ParentLookup component="{this}" property="context" parentClass="{AppContext}"/>
+	</fx:Declarations>
+	<s:Rect width="100%" height="100%">
+		<s:fill>
+			<s:SolidColor color="#FFFFFF" />
+		</s:fill>
+	</s:Rect>
+	<s:VGroup top="10" left="10" right="10" bottom="10" >
+		<s:Label text="Setup Application" fontSize="28" fontFamily="Light" width="100%"/>
+		<s:Group width="100%" height="100%">
+			<s:Panel verticalCenter="0" horizontalCenter="0" title="Configure System Administrator">
+				<s:VGroup top="10" left="10" right="10" bottom="10">
+					<component:Labeled label="User Name" width="100%" >
+						<component:TextInput width="100%" id="inputUserName" restrict="A-Za-z0-9"/>
+					</component:Labeled>
+					<component:Labeled label="Password" width="100%">
+						<component:TextInput width="100%" displayAsPassword="true" id="inputPassword"/>
+					</component:Labeled>
+					<component:Labeled label="Confirm Password" width="100%">
+						<component:TextInput width="100%" displayAsPassword="true" id="inputPasswordConfirm"/>
+					</component:Labeled>
+					<s:HGroup width="100%">
+						<s:Spacer width="100%" />
+						<component:Button label="Continue" click="onContinue(event)"/>
+					</s:HGroup>
+				</s:VGroup>
+			</s:Panel>
+		</s:Group>
+	</s:VGroup>
+</s:Group>

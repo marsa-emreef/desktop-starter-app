@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" top="0" left="0" right="0" bottom="0" xmlns:component="lib.component.*" xmlns:utils="lib.utils.*">
+	<fx:Script>
+		<![CDATA[
+			import lib.utils.Debounce;
+			import lib.utils.Promise;
+			import lib.utils.PromiseEvent;
+			
+			import mx.core.IUIComponent;
+			import mx.core.IVisualElement;
+			import mx.core.UIComponent;
+			
+			private var index:Number = 0;
+			
+			public function show(text:String,icon:String,type:uint,color:uint=0xBBBBBB):Promise{
+				var dp:DialogPanel = new DialogPanel();
+				dp.maxWidth = this.width - 100;
+				dp.maxHeight = this.height - 100;
+				dp.text = text;
+				dp.icon = icon;
+				dp.iconColor = color;
+				dp.type = type;
+				return showDialog(dp);
+			}
+			
+			public function showDialog(component:DialogPanelBase):Promise{
+				 if(slider.displayContent){
+					 componentToDisplay = component;
+					 slider.displayContent = false;
+				 }else{
+					 dialogToDisplay.addItem(component);
+					 slider.addElement(component);
+					 slider.displayContent = true;
+				 }
+				 component.isClosed = false;
+				 component.promise = new Promise();
+				 return component.promise;
+			}
+			
+			private var onAfterClose:Function = Debounce.create(_onAfterClose,100);
+			
+			private function dispatchEventInSliderContent(event:*):void{
+				if(slider.numElements > 0){
+					var component:UIComponent = slider.getElementAt(0) as UIComponent;
+					if(event is PromiseEvent){
+						if(component.hasEventListener(event.type)){
+							var eventPipe:PromiseEvent = new PromiseEvent(event.type,event.payload);
+							eventPipe.then(function(res:*):void{
+								(event as PromiseEvent).resolve();
+							});
+							component.dispatchEvent(eventPipe);
+						}else{
+							(event as PromiseEvent).resolve();
+						}
+					}else{
+						if(component.hasEventListener(event.type)){
+							component.dispatchEvent(new Event(event.type));
+						}
+					}
+					
+				}
+			}
+			
+			protected function _onAfterClose():void
+			{
+				dispatchEventInSliderContent(new Event('afterClose'));
+				if(componentToDisplay != null){
+					slider.removeAllElements();
+					dialogToDisplay.addItem(componentToDisplay);
+					slider.addElement(componentToDisplay);
+					componentToDisplay = null;
+					slider.displayContent = true;
+				}else{
+					
+					if(slider.numElements > 0){
+						var component:IVisualElement = slider.getElementAt(0) as DialogPanelBase;
+						var dialogIndex:Number = dialogToDisplay.getItemIndex(component);
+						if(dialogIndex >= 0){
+							dialogToDisplay.removeItemAt(dialogIndex);	
+						}
+					}
+					slider.removeAllElements();
+					var dialog:DialogPanelBase = getNextDialogToDisplay();
+					if(dialog){
+						slider.addElement(dialog);
+						slider.displayContent = true;	
+					}
+				}
+			}
+			
+			public function onCloseDialog(event:Event):void{
+				slider.displayContent = false;
+			}
+			
+			private var componentToDisplay:DialogPanelBase;
+			
+			private function getNextDialogToDisplay():DialogPanelBase
+			{
+				if(dialogToDisplay.length > 0){
+					var nextDialog:DialogPanelBase = dialogToDisplay.getItemAt(dialogToDisplay.length - 1) as DialogPanelBase;
+					if(!nextDialog.isClosed){
+						return nextDialog;
+					}else{
+						dialogToDisplay.removeItemAt(dialogToDisplay.getItemIndex(nextDialog));
+						return getNextDialogToDisplay();	
+					}
+				}
+				return null;
+			}
+			
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<fx:Boolean id="closeInvokeByShowDialog" />
+		<s:ArrayCollection id="dialogToDisplay" />
+		
+		<fx:Boolean id="dialogIsActive" />
+		<utils:BindProperty property="dialogIsActive" component="{this}" value="{slider.displayContent}" />
+	</fx:Declarations>
+	
+	<component:Slider id="slider" 
+					  top="0" 
+					  left="0" 
+					  right="0" 
+					  bottom="0" 
+					  creationComplete="{slider.addEventListener('closeDialog',onCloseDialog)}" 
+					  beforeOpen="dispatchEventInSliderContent(event);" 
+					  afterOpen="dispatchEventInSliderContent(event);" 
+					  beforeClose="dispatchEventInSliderContent(event);" 
+					  afterClose="onAfterClose()" />
+</s:Group>

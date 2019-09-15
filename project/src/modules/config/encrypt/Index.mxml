@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Module xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		  xmlns:s="library://ns.adobe.com/flex/spark" 
+		  xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" xmlns:component="lib.component.*">
+	
+	<fx:Script>
+		<![CDATA[
+			import lib.utils.encryption.Encryption;
+			protected function onDecrypt(event:MouseEvent):void
+			{
+				try{
+					inputDecryptedData.text = Encryption.decryptData(parseInt(inputTs.text),inputEncryptedData.text)	
+				}catch(err:Error){
+					trace(err);
+				}
+			}
+			
+			protected function onEncrypt(event:MouseEvent):void{
+				try{
+					var encryption:Encryption = Encryption.encryptData(inputDecryptedData.text);
+					inputTs.text = encryption.time.toString();
+					inputEncryptedData.text = encryption.data;	
+				}catch(err:Error){
+					trace(err);
+				}
+				
+			}
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+		<fx:String id="title" >Encrypt</fx:String>
+	</fx:Declarations>
+	<s:HGroup width="100%" height="100%" top="10" left="10" right="10">
+		<s:Panel width="100%" height="100%" title="Encrypted">
+			<s:VGroup top="10" left="10" right="10" bottom="10">
+				<component:Labeled width="100%" label="TS :">
+					<component:TextInput width="100%" id="inputTs" autoCap="false"/>
+				</component:Labeled>
+				<component:Labeled width="100%" height="100%" label="Data">
+					<component:TextArea width="100%" height="100%" id="inputEncryptedData" autoCap="false"/>
+				</component:Labeled>
+				<s:HGroup width="100%">
+					<component:Button label="Decrypt" click="onDecrypt(event)" />
+				</s:HGroup>
+			</s:VGroup>
+		</s:Panel>
+		<s:Panel width="100%" height="100%" title="Decrypted">
+			<s:VGroup top="10" left="10" right="10" bottom="10">
+				<component:Labeled width="100%" height="100%" label="Data">
+					<component:TextArea width="100%" height="100%" id="inputDecryptedData" autoCap="false"/>
+				</component:Labeled>
+				<s:HGroup width="100%">
+					<s:Spacer width="100%" />
+					<component:Button label="Encrypt" click="onEncrypt(event)"/>
+				</s:HGroup>
+			</s:VGroup>
+		</s:Panel>
+	</s:HGroup>
+</s:Module>

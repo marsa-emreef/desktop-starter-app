@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="400" height="300" xmlns:utils="lib.utils.*">
+	<fx:Script>
+		<![CDATA[
+			import lib.page.dialog.DialogPanel;
+			import lib.page.dialog.DialogPanelBase;
+			import lib.utils.ColorCoding;
+			import lib.utils.IconsChar;
+			import lib.utils.Promise;
+			
+			import mx.utils.ObjectProxy;
+
+			[Bindable(event="isActiveChange")]
+			public function get isActive():Boolean
+			{
+				return _isActive;
+			}
+
+			public function set isActive(value:Boolean):void
+			{
+				if( _isActive !== value)
+				{
+					_isActive = value;
+					dispatchEvent(new Event("isActiveChange"));
+				}
+			}
+
+			public function showNotification(text:String,color:Number=ColorCoding.GREEN,closeAutomatically:Boolean=true):void{
+				notifications.addItem(new ObjectProxy({label:text,color:color,closeAutomatically:closeAutomatically}));
+			}
+			
+			public function showConfirmation(text:String,options:uint):Promise{
+				var dialogPanel:DialogPanel = new DialogPanel();
+				dialogPanel.text = text;
+				dialogPanel.type = options;
+				dialogPanel.promise = new Promise();
+				dialogPanel.isDialog = true;
+				dialogPanel.icon = IconsChar.help_outline;
+				dialogPanel.iconColor = ColorCoding.YELLOW;
+				dialogPanel.addEventListener("closeDialog",onDialogClosed);
+				notificationHolder.addElement(dialogPanel);
+				childrenInNotificationHolder += 1;
+				return dialogPanel.promise;
+			}
+			
+			[Bindable]
+			private var childrenInNotificationHolder:Number = 0;
+			
+			public function showDialog(dialog:DialogPanelBase):Promise
+			{
+				dialog.promise = new Promise();
+				dialog.addEventListener("closeDialog",onDialogClosed);
+				notificationHolder.addElement(dialog);
+				childrenInNotificationHolder += 1;
+				return dialog.promise;
+			}
+			
+			protected function onDialogClosed(event:Event):void
+			{
+				var dialog:DialogPanelBase = event.target as DialogPanelBase;
+				notificationHolder.removeElement(dialog);
+				childrenInNotificationHolder -= 1;
+				dialog.removeEventListener('closeDialog',onDialogClosed);
+			}
+			
+			private var _isActive:Boolean;
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<s:ArrayList id="notifications" />
+		<utils:BindProperty property="isActive" component="{this}" value="{childrenInNotificationHolder > 0}" />
+	</fx:Declarations>
+	<fx:Metadata>
+		[Event(name="isActiveChange", type="flash.events.Event")]
+	</fx:Metadata>
+	<s:DataGroup top="10" horizontalCenter="0" dataProvider="{notifications}">
+		<s:layout>
+			<s:VerticalLayout gap="10" />
+		</s:layout>
+		<s:itemRenderer>
+			<fx:Component>
+				<s:ItemRenderer width="100%" height="100%" addedToStage="onAddedToStage(event)" dataChange="onAddedToStage(event)">
+					<fx:Script>
+						<![CDATA[
+							
+							import lib.utils.ColorCoding;
+							import lib.utils.IconsChar;
+							import lib.utils._;
+							
+							private var timer:Timer = new Timer(1000*3,1);
+							
+							protected function onAddedToStage(event:Event):void
+							{
+								if(data && data.closeAutomatically){
+									timer.addEventListener(TimerEvent.TIMER_COMPLETE,onTimerComplete);
+									timer.start();
+								}
+							}
+							
+							override protected function get hovered():Boolean{
+								return false;
+							}
+							
+							protected function onTimerComplete(event:TimerEvent):void
+							{
+								var timer:Timer = event.target as Timer; 
+								outerDocument.notifications.removeItem(data);
+								timer.removeEventListener(TimerEvent.TIMER_COMPLETE,onTimerComplete);
+							}
+							
+						]]>
+					</fx:Script>
+					<s:Group top="0" left="0" right="0" bottom="0" >
+						<s:Rect width="100%" height="100%" radiusX="10" >
+							<s:filters>
+								<s:DropShadowFilter alpha="0.1" angle="90" blurX="20" blurY="20" strength="0.5"/>
+							</s:filters>
+							<s:fill>
+								<s:SolidColor color="{data.color}" alpha="0.9"/>
+							</s:fill>
+						</s:Rect>
+						<s:HGroup top="10" left="10" right="10" bottom="10" verticalAlign="middle">
+							<s:Label text="{data.label}" width="100%" color="#FFFFFF"/>
+							<s:Label id="closeButton" fontFamily="Icon" text="{IconsChar.close}" mouseOver="{closeButton.text = IconsChar.cancel}" mouseOut="{closeButton.text = IconsChar.close}" color="#FFFFFF" fontSize="14" click="{timer.stop();outerDocument.notifications.removeItem(data);}"/>	
+						</s:HGroup>						
+					</s:Group>
+				</s:ItemRenderer>
+			</fx:Component>
+		</s:itemRenderer>
+	</s:DataGroup>
+	<s:Group width="100%" height="100%" visible="{isActive}" alpha="0.8" showEffect="Fade" hideEffect="Fade">
+		<s:Rect width="100%" height="100%" >
+			<s:fill>
+				<s:SolidColor color="#FAFAFA" />
+			</s:fill>
+		</s:Rect>	
+	</s:Group>
+	<s:Group verticalCenter="0" horizontalCenter="0" id="notificationHolder">
+	</s:Group>
+</s:Group>

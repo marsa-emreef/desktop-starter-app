@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Module xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		  xmlns:s="library://ns.adobe.com/flex/spark" 
+		  xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" xmlns:context="modules.context.*" xmlns:utils="lib.utils.*" xmlns:skins="lib.component.skins.*" xmlns:component="lib.component.*" currentState="{totalElementsInContainer > 0 ? 'minimize' : 'normal'}">
+	
+	<fx:Script>
+		<![CDATA[
+			import lib.utils.PayloadEvent;
+			import lib.utils._;
+			
+			import mx.collections.ArrayCollection;
+			import mx.core.IVisualElement;
+			import mx.core.UIComponent;
+			import mx.utils.ObjectProxy;
+			import mx.utils.StringUtil;
+			
+			import spark.events.GridEvent;
+			protected function onReady(event:Event):void
+			{
+				context.query('catalog => describe(catalog)').then(function(res:*):void{
+					var dataProvider:Array = [];
+					for (var key:String in res.result) 
+					{
+						dataProvider.push(new ObjectProxy({
+							label : key,
+							type : res.result[key],
+							path : key,
+							displayDetail : false
+						}));
+					}
+					grid.dataProvider = new ArrayCollection(dataProvider);
+				});
+			}
+			
+			protected function onGridDoubleClicked(event:GridEvent):void
+			{
+				var path:String = StringUtil.substitute('catalog.{0}',grid.selectedItem.label);
+				removeAllElementsInContainer();
+				openPanelDetail(path);
+			}
+			
+			private function openPanelDetail(path:String):void
+			{
+				var detailPanel:DetailPanel = new DetailPanel();
+				detailPanel.path = path;
+				detailPanel.addEventListener("openDetail",onOpenDetail);
+				addElementToContainer(detailPanel);
+				pathAddress = path;
+			}
+			
+			private var elementsInContainer:Array = [];
+			
+			private function removeAllElementsInContainer():void
+			{
+				_.forEach(elementsInContainer,function(panel:IVisualElement):void{
+					panelDetailContainer.removeElement(panel);
+				});
+				elementsInContainer = [];
+				totalElementsInContainer = elementsInContainer.length;
+			}
+			
+			private function addElementToContainer(panel:IVisualElement):void{
+				panelDetailContainer.addElement(panel);
+				elementsInContainer.push(panel);
+				totalElementsInContainer = elementsInContainer.length;
+			}
+			
+			protected function onOpenDetail(event:PayloadEvent):void
+			{
+				var path:String = event.payload.path;
+				var trigger:DetailPanel = event.target as DetailPanel;
+				var indexOfTrigger:Number = elementsInContainer.indexOf(trigger);
+				var firstIndexToRemove:Number = indexOfTrigger + 1;
+				var countOfPanelToRemove:Number = elementsInContainer.length - firstIndexToRemove;
+				if(countOfPanelToRemove >  0){
+					var elementsToRemove:Array = elementsInContainer.splice(firstIndexToRemove,countOfPanelToRemove);
+					_.forEach(elementsToRemove,function(panel:IVisualElement):void{
+						panelDetailContainer.removeElement(panel);
+					});
+				}
+				openPanelDetail(path);
+				
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<fx:String id="title" >Database</fx:String>
+		<context:AppContext id="context" />
+		<utils:ParentLookup component="{this}" property="context" parentClass="{AppContext}" lookupComplete="onReady(event)"/>
+		<fx:String id="pathAddress" />
+		<fx:Number id="totalElementsInContainer" />
+	</fx:Declarations>
+	<s:states>
+		<s:State name="normal" />
+		<s:State name="minimize" />
+	</s:states>
+	<s:VGroup top="10" left="10" right="10" bottom="10">
+		<component:TextInput width="100%" editable="false" text="{pathAddress}"/>
+		<s:HGroup width="100%" height="100%" id="panelDetailContainer" gap="-1" >
+			<s:DataGrid height="100%" width.normal="100%" width.minimize="170" id="grid" doubleClickEnabled="true" gridDoubleClick="onGridDoubleClicked(event)" variableRowHeight="true">
+				<s:columns>
+					<s:ArrayList>
+						<s:GridColumn dataField="label" headerText="Table" />
+					</s:ArrayList>
+				</s:columns>
+			</s:DataGrid>
+		</s:HGroup>
+	</s:VGroup>
+</s:Module>
