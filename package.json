@@ -44,7 +44,7 @@
   "author": "Global Aerospace Logistic, LLC",
   "license": "ISC",
   "devDependencies": {
-    "electron": "^4.2.9",
+    "electron": "^9.4.0",
     "electron-builder": "^20.39.0"
   },
   "dependencies": {
